@@ -78,6 +78,11 @@ Newly uploaded spectra invalidate the previous archive so old and new analyses c
 The Excel report uses `artifact_tool` if it is installed; otherwise the application
 exports a basic Excel workbook with all fitted values via the existing compatibility fallback.
 
+## Authors
+
+- **Patrícia Grznárová** — [GitHub](https://github.com/7SEDEM7) · [ORCID](https://orcid.org/0009-0008-5719-1764) · [LinkedIn](https://www.linkedin.com/in/patr%C3%ADcia-grzn%C3%A1rov%C3%A1-28879742b/)
+- **Miriam Grznárová** — [GitHub](https://github.com/MiriamGrznarova) · [ORCID](https://orcid.org/0009-0001-3612-1213) · [LinkedIn](https://www.linkedin.com/in/miriam-grzn%C3%A1rov%C3%A1-243a7b43a/)
+  
 ## Attribution
 
 This project was inspired by and adapted from the work of **N. Labajová**, whose FTIR analysis code was itself adapted from the work of **Anastasia Ragulskaya**.
