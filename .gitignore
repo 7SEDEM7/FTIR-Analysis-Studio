@@ -1,0 +1,23 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# PyCharm
+.idea/
+
+# Experimental data
+data/
+*.xlsx
+*.csv
+*.txt
+
+# Generated reports
+*.zip
+*.pdf
+*.png
+
+# Private configuration
+.streamlit/secrets.toml
