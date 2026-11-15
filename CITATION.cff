@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "FTIR Analysis Studio"
+message: "If you use FTIR Analysis Studio in a study, please cite it using this file."
+type: software
+authors:
+  - name: "SEDEM"
+repository-code: "https://github.com/7SEDEM7/FTIR-Analysis-Studio"
+license: MIT
+date-released: 2026-11-15
