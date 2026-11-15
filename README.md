@@ -76,4 +76,4 @@ Open **View results** or **Download ZIP** and click the download button.
 All Excel, PNG, interactive HTML, CSV/TXT and settings files are included by default.
 Newly uploaded spectra invalidate the previous archive so old and new analyses cannot be mixed.
 The Excel report uses `artifact_tool` if it is installed; otherwise the application
-exports a basic Excel workbook with all fitted values via the existing compatibility fallback.
+exports a basic Excel workbook with all fitted values via the existing compatibility fallback.\n\n## Attribution\n\nThis project was inspired by and adapted from the work of **N. Labajová**, whose FTIR analysis code was itself adapted from the work of **Anastasia Ragulskaya**.\n\n- N. Labajová: [FTIR](https://github.com/NLabajova/FTIR)\n- Anastasia Ragulskaya: [FTIR_code](https://github.com/anastasia-ragulskaya/FTIR_code)\n\nRedistribution of adapted source code is subject to the licensing terms of the original projects.\n
