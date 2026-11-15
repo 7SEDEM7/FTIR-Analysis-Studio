@@ -1,5 +1,5 @@
 # FTIR Analysis Studio — Guided workflow (V3)
-
+**Without download the app, you can use this link:** https://ftir-analysis-studio-wrvgqyukb3sajjxbibckj8.streamlit.app/  
 **Upload spectra → Configure model → Run analysis → Review results → Download complete ZIP**.
 
 ## Launch (Windows / PyCharm)
