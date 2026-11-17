@@ -23,7 +23,7 @@ RED = 'FCE8E7'
 WHITE = 'FFFFFF'
 
 
-def review_flags(r, threshold=0.95, amplitude_max=1.0, sigma_max=100.0):
+def review_flags(r, threshold=0.95, amplitude_max=1.0, sigma_max=100.0, sigma_min=None):
     """Heuristic QC prompts only. No false claims of fit validity."""
     issues=[]
     if not math.isfinite(float(r.r2)):
@@ -32,8 +32,14 @@ def review_flags(r, threshold=0.95, amplitude_max=1.0, sigma_max=100.0):
         issues.append(f'R² below review threshold ({threshold:g})')
     if any(float(v) >= 0.995 * amplitude_max for v in r.parameters[:5]):
         issues.append('Amplitude close to upper bound')
-    if any(float(v) >= 0.995 * sigma_max for v in r.parameters[5:]):
-        issues.append('Sigma close to upper bound')
+    from ftir_core import validate_sigma_bounds, LABELS
+    sigma_lower, sigma_upper = validate_sigma_bounds(sigma_min, sigma_max)
+    for label, value, lo, hi in zip(LABELS, r.parameters[5:], sigma_lower, sigma_upper):
+        tolerance = max(1e-7, 0.005 * (hi - lo))
+        if hi - float(value) <= tolerance:
+            issues.append(f'{label}: sigma near upper bound')
+        if float(value) - lo <= tolerance:
+            issues.append(f'{label}: sigma near lower bound')
     if any(float(v) <= 1e-5 for v in r.parameters[:5]):
         issues.append('Near-zero component amplitude')
     return issues
@@ -43,7 +49,8 @@ def qc_records(results, settings):
     threshold=float(settings.get('review_r2_threshold',0.95))
     return [(r, review_flags(r,threshold,
                float(settings.get('maximum_amplitude',1.0)),
-               float(settings.get('maximum_sigma_cm-1',100.0)))) for r in results]
+               settings.get('maximum_sigma_per_peak_cm-1',settings.get('maximum_sigma_cm-1',100.0)),
+               settings.get('minimum_sigma_cm-1',None))) for r in results]
 
 
 def _style_table(ws, header_row=1, start_row=2, last_col=None, end_row=None):
@@ -118,6 +125,13 @@ def build_excel(results, settings, chart_png, basic_workbook_bytes):
         if name in chart_png:
             im=XLImage(BytesIO(chart_png[name])); im.width=710;im.height=345
             dashboard.add_image(im,pos)
+    constraints=book.create_sheet('Sigma Constraints')
+    constraints.append(['Component', 'Center (cm-1)', 'Minimum sigma (cm-1)', 'Maximum sigma (cm-1)'])
+    for item in settings.get('sigma_constraints_by_peak', []):
+        constraints.append([item['component'], item['center_cm-1'],
+                            item['minimum_sigma_cm-1'], item['maximum_sigma_cm-1']])
+    _style_table(constraints)
+
     quality=book.create_sheet('Quality Review',2)
     quality.append(['Sample','R²','RMSE','Review status','Review notes','N points'])
     for r,notes in qc_records(results,settings):
@@ -177,6 +191,7 @@ def build_pdf(archive, results, settings):
     _p(doc,f'Samples analyzed: {len(results)}',42,H-205,12,True)
     _p(doc,'Source: uploaded raw TXT/CSV spectra',42,H-228,10)
     _p(doc,'Model: fixed centers, linear endpoint baseline, 1600-1700 cm-1',42,H-249,10)
+    _p(doc,'ATR preprocessing: '+str(settings.get('preprocessing',{}).get('atr_mode','none')),42,H-268,9)
     _p(doc,'Relative peak areas are not validated structural percentages.',42,H-289,10,True,(0.65,0.26,0.14))
     _p(doc,'This report is descriptive. Fit flags require scientific review.',42,H-311,10)
     doc.setStrokeColorRGB(.82,.88,.90);doc.line(42,H-335,W-42,H-335)
@@ -199,7 +214,9 @@ def build_pdf(archive, results, settings):
         '1679, 1671, and 1645. Areas are computed from fitted amplitudes and widths.',
         f'QC screening threshold: R squared < {float(settings.get("review_r2_threshold",0.95)):.2f}, or near-bound parameters.',
         'QC flags are screening prompts, not definitive scientific quality criteria.',
-        'Interpret component labels cautiously; alternative models require validation.'
+        'Interpret component labels cautiously; alternative models require validation.',
+        'Peak width constraints (sigma, cm-1) are stored in analysis_settings.json',
+        'and in the Excel Sigma Constraints worksheet.'
     ]:
         y-=16;_p(doc,line,42,y,8.7)
     doc.showPage()

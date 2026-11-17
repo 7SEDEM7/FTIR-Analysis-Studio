@@ -95,9 +95,30 @@ def gaussian_components(x, params, centers=CENTERS):
     return a[:, None] * np.exp(-((x[None, :] - np.asarray(centers)[:, None]) ** 2)/(2*s[:,None]**2))
 
 
-def fit_spectrum(x, y, sample='Sample', low=1600., high=1700., amplitude_max=1., sigma_max=100., initial_sigma=10.):
-    if not 0 < amplitude_max or not 0 < sigma_max or not 0 < initial_sigma <= sigma_max:
-        raise ValueError('Invalid fitting bounds or initial sigma.')
+def validate_sigma_bounds(sigma_min=None, sigma_max=100.):
+    """Return per-peak sigma limits (cm-1); reject invalid or inverted bounds."""
+    lo = np.asarray([0.] * 5 if sigma_min is None else sigma_min, dtype=float)
+    hi = np.asarray(sigma_max, dtype=float)
+    if lo.ndim == 0:
+        lo = np.repeat(lo, 5)
+    if hi.ndim == 0:
+        hi = np.repeat(hi, 5)
+    if lo.shape != (5,) or hi.shape != (5,):
+        raise ValueError('Sigma limits must contain exactly five numbers, one per Gaussian component.')
+    if not np.all(np.isfinite(lo)) or not np.all(np.isfinite(hi)):
+        raise ValueError('Sigma limits must be finite numbers.')
+    if np.any(lo < 0) or np.any(lo >= hi):
+        raise ValueError('Each Gaussian peak requires 0 <= minimum sigma < maximum sigma.')
+    return lo, hi
+
+
+def fit_spectrum(x, y, sample='Sample', low=1600., high=1700., amplitude_max=1.,
+                 sigma_max=100., initial_sigma=10., sigma_min=None):
+    sigma_lower, sigma_upper = validate_sigma_bounds(sigma_min, sigma_max)
+    if not np.isfinite(amplitude_max) or amplitude_max <= 0:
+        raise ValueError('Maximum amplitude must be positive and finite.')
+    if not np.isfinite(initial_sigma) or initial_sigma <= 0:
+        raise ValueError('Initial sigma must be positive and finite.')
     x, y = np.asarray(x,float), np.asarray(y,float)
     mask = np.isfinite(x) & np.isfinite(y) & (x >= low) & (x <= high)
     xa, ya = x[mask], y[mask]
@@ -113,9 +134,12 @@ def fit_spectrum(x, y, sample='Sample', low=1600., high=1700., amplitude_max=1.,
     corrected = ya - baseline
     def model(wavenumber, *p):
         return gaussian_components(wavenumber, p).sum(axis=0)
-    p0 = [min(0.1, amplitude_max / 2)] * 5 + [initial_sigma] * 5
-    lower = [0.] * 10
-    upper = [amplitude_max]*5 + [sigma_max]*5
+    # Ensure the initial guess sits strictly inside each peak's allowed interval.
+    margin = np.maximum((sigma_upper - sigma_lower) * 1e-6, 1e-9)
+    sigma_start = np.clip(float(initial_sigma), sigma_lower + margin, sigma_upper - margin)
+    p0 = [min(0.1, amplitude_max / 2)] * 5 + sigma_start.tolist()
+    lower = [0.] * 5 + sigma_lower.tolist()
+    upper = [amplitude_max] * 5 + sigma_upper.tolist()
     params, covariance = curve_fit(model, xa, corrected, bounds=(lower,upper),p0=p0,maxfev=20000)
     fitted = model(xa,*params)
     residuals = corrected - fitted

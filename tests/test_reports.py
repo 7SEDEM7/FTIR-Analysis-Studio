@@ -25,7 +25,7 @@ functions = ['png_spectrum', 'safe_name', 'summary_frame', 'plot_spectrum', 'mak
 program = ast.Module(body=[n for n in module.body if isinstance(n, ast.FunctionDef) and n.name in functions],
                      type_ignores=[])
 exec(compile(program, str(app_path), 'exec'), globals())
-make_zip = globals()['make_zip']
+
 
 def test_complete_reports_from_raw_data():
     rng = np.linspace(1600, 1700, 208)
