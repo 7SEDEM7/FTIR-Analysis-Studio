@@ -114,9 +114,19 @@ FTIR-Analysis-Studio/
 
 Do not commit `.venv/`, `.idea/`, `__pycache__/`, raw experimental data, private spreadsheets, generated results or secrets. These should be excluded via `.gitignore`. **Ignoring files does not remove them from earlier Git commits.**
 
-## Attribution and sharing
+## Authors
 
-The notebook used as a starting point credits [anastasia-ragulskaya/FTIR_code](https://github.com/anastasia-ragulskaya/FTIR_code). Review the upstream license and redistribution terms before making this adapted project public. Keep this repository **private** until the supervisor approves sharing both the code and the experimental methodology.
+- **Patrícia Grznárová** — [GitHub](https://github.com/7SEDEM7) · [ORCID](https://orcid.org/0009-0008-5719-1764) · [LinkedIn](https://www.linkedin.com/in/patr%C3%ADcia-grzn%C3%A1rov%C3%A1-28879742b/)
+- **Miriam Grznárová** — [GitHub](https://github.com/MiriamGrznarova) · [ORCID](https://orcid.org/0009-0001-3612-1213) · [LinkedIn](https://www.linkedin.com/in/miriam-grzn%C3%A1rov%C3%A1-243a7b43a/)
+
+## Attribution
+
+This project was inspired by and adapted from the work of **N. Labajová**, whose FTIR analysis code was itself adapted from the work of **Anastasia Ragulskaya**.
+
+- N. Labajová: [FTIR](https://github.com/NLabajova/FTIR)
+- Anastasia Ragulskaya: [FTIR_code](https://github.com/anastasia-ragulskaya/FTIR_code)
+
+Redistribution of adapted source code is subject to the licensing terms of the original projects.
 
 ## Planned scientific validation
 
